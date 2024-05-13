@@ -26,6 +26,24 @@ function handlePostRequest() {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     handlePostRequest();
 }
+if ($_POST['action'] == 'add') {
+    $date_fin = isset($_POST['neverExpires']) ? 'Undefined' : $_POST['date_fin'];
+    
+    // Vérifiez si une ligne avec le même num_etiq et num_pc existe déjà
+    $stmt = $db->prepare("SELECT * FROM ETIQ_PC WHERE NUM_ETIQ = ? AND NUM_PC = ?");
+    $stmt->execute([$_POST['num_etiq'], $_POST['num_pc']]);
+    $row = $stmt->fetch();
+
+    if ($row) {
+        // Si une telle ligne existe déjà, mettez à jour cette ligne
+        $stmt = $db->prepare("UPDATE ETIQ_PC SET DATE_DEBUT = ?, DATE_FIN = ? WHERE NUM_ETIQ = ? AND NUM_PC = ?");
+        $stmt->execute([$_POST['date_debut'], $date_fin, $_POST['num_etiq'], $_POST['num_pc']]);
+    } else {
+        // Sinon, insérez une nouvelle ligne
+        $stmt = $db->prepare("INSERT INTO ETIQ_PC (NUM_ETIQ, NUM_PC, DATE_DEBUT, DATE_FIN) VALUES (?, ?, ?, ?)");
+        $stmt->execute([$_POST['num_etiq'], $_POST['num_pc'], $_POST['date_debut'], $date_fin]);
+    }
+}
 
 $etiqs = $db->query("SELECT * FROM ETIQ_PC");
 ?>
@@ -63,12 +81,30 @@ $etiqs = $db->query("SELECT * FROM ETIQ_PC");
             <label for="date_debut" class="form-label">Date de début</label>
             <input type="date" id="date_debut" name="date_debut" required class="form-control">
         </div>
-        <div class="mb-3">
-            <label for="date_fin" class="form-label">Date de fin</label>
-            <input type="date" id="date_fin" name="date_fin" required class="form-control">
-        </div>
-        <button type="submit" class="btn btn-primary">Ajouter</button>
-    </form>
+
+<div class="mb-3">
+    <label for="date_fin" class="form-label">Date de fin</label>
+    <input type="date" id="date_fin" name="date_fin" required class="form-control">
+</div>
+<!-- Ajout de la case à cocher "N'expire jamais" -->
+<div class="mb-3">
+    <input type="checkbox" id="neverExpires" name="neverExpires" value="neverExpires">
+    <label for="neverExpires">N'expire jamais</label><br>
+</div>
+<button type="submit" class="btn btn-primary">Ajouter</button>
+</form>
+
+<script>
+document.getElementById('neverExpires').addEventListener('change', function() {
+    var dateFinInput = document.getElementById('date_fin');
+    dateFinInput.required = !this.checked;
+    dateFinInput.disabled = this.checked;
+    if (this.checked) {
+        dateFinInput.value = '';
+    }
+});
+</script>
+
     <table class="table">
         <thead>
             <tr>
@@ -87,30 +123,50 @@ $etiqs = $db->query("SELECT * FROM ETIQ_PC");
     <td><?php echo htmlspecialchars($etiq['NUM_ETIQ']); ?></td>
     <td><?php echo htmlspecialchars($etiq['NUM_PC']); ?></td>
     <td><?php echo htmlspecialchars($etiq['DATE_DEBUT']); ?></td>
-    <td><?php echo htmlspecialchars($etiq['DATE_FIN']); ?></td>
-    <td>
-        <button onclick="document.getElementById('editForm<?php echo $etiq['ID']; ?>').style.display='block'" class="btn btn-primary" style="margin-right: 10px;">Modifier</button>
-        <form id="editForm<?php echo $etiq['ID']; ?>" style="display: none;" action="manage_etiq_pc.php" method="post">
-            <input type="hidden" name="id" value="<?php echo $etiq['ID']; ?>">
-            <input type="hidden" name="action" value="edit">
-            <label for="num_etiq">Numéro RFID:</label><br>
-<input type="text" id="num_etiq" name="num_etiq" value="<?php echo $etiq['NUM_ETIQ']; ?>"><br>
-            <?php
-            if (isset($_POST['num_etiq'])) {
-                $num_etiq = $_POST['num_etiq'];
-            } else {
-                $num_etiq = '';
-            }
-            ?>
-            <label for="num_pc">Numéro PC:</label><br>
-            <input type="text" id="num_pc" name="num_pc" value="<?php echo $etiq['NUM_PC']; ?>"><br>
-            <label for="date_debut">Date de début:</label><br>
-            <input type="date" id="date_debut" name="date_debut" value="<?php echo $etiq['DATE_DEBUT']; ?>"><br>
-            <label for="date_fin">Date de fin:</label><br>
-            <input type="date" id="date_fin" name="date_fin" value="<?php echo $etiq['DATE_FIN']; ?>"><br>
-            <button type="submit" class="btn btn-primary">Enregistrer</button>
-        </form>
-        <form action="manage_etiq_pc.php" method="post">
+<td><?php echo $etiq['DATE_FIN'] ? htmlspecialchars($etiq['DATE_FIN']) : 'Undefined'; ?></td>
+<td>
+<button onclick="document.getElementById('editForm<?php echo $etiq['ID']; ?>').style.display='block'" class="btn btn-primary" style="margin-right: 10px;">Modifier</button>
+<form id="editForm<?php echo $etiq['ID']; ?>" style="display: none;" action="manage_etiq_pc.php" method="post">
+    <input type="hidden" name="id" value="<?php echo $etiq['ID']; ?>">
+    <input type="hidden" name="action" value="edit">
+    <label for="num_etiq">Numéro RFID:</label><br>
+    <input type="text" id="num_etiq" name="num_etiq" value="<?php echo $etiq['NUM_ETIQ']; ?>"><br>
+    <?php
+    if (isset($_POST['num_etiq'])) {
+        $num_etiq = $_POST['num_etiq'];
+    } else {
+        $num_etiq = '';
+    }
+    ?>
+    <label for="num_pc">Numéro PC:</label><br>
+    <input type="text" id="num_pc" name="num_pc" value="<?php echo $etiq['NUM_PC']; ?>"><br>
+    <label for="date_debut">Date de début:</label><br>
+    <input type="date" id="date_debut" name="date_debut" value="<?php echo $etiq['DATE_DEBUT']; ?>"><br>
+    <label for="date_fin">Date de fin:</label><br>
+    <input type="date" id="date_fin<?php echo $etiq['ID']; ?>" name="date_fin" value="<?php echo $etiq['DATE_FIN']; ?>"><br>
+    <div class="mb-3 form-check">
+        <input type="checkbox" class="form-check-input" id="edit_neverExpires<?php echo $etiq['ID']; ?>" onchange="handleEditNeverExpiresChange(<?php echo $etiq['ID']; ?>)">
+        <label class="form-check-label" for="edit_neverExpires<?php echo $etiq['ID']; ?>">N'expire jamais</label>
+    </div>
+    <button type="submit" class="btn btn-primary">Enregistrer</button>
+</form>
+
+<script>
+function handleEditNeverExpiresChange(id) {
+    var neverExpiresCheckbox = document.getElementById('edit_neverExpires' + id);
+    var dateFinInput = document.getElementById('date_fin' + id);
+
+    if (neverExpiresCheckbox.checked) {
+        dateFinInput.value = "";
+        dateFinInput.disabled = true;
+    } else {
+        dateFinInput.value = "";
+        dateFinInput.disabled = false;
+    }
+}
+</script>
+
+        <form action="manage_etiq_pc.php" method="post" style="display: inline;">
             <input type="hidden" name="id" value="<?php echo $etiq['ID']; ?>">
             <input type="hidden" name="action" value="delete">
             <button type="submit" class="btn btn-danger">Supprimer</button>
