@@ -81,7 +81,7 @@ $antennes = $db->query("SELECT * FROM ANTENNE");
             <input type="text" id="edit_id_antenne<?php echo $antenne['ID']; ?>" name="id_antenne" value="<?php echo $antenne['ID_ANTENNE']; ?>"><br>
             <label for="edit_emplacement<?php echo $antenne['ID']; ?>">Emplacement:</label><br>
             <input type="text" id="edit_emplacement<?php echo $antenne['ID']; ?>" name="emplacement" value="<?php echo $antenne['EMPLACEMENT']; ?>"><br>
-            <button type="submit" class="btn btn-primary" style="margin-top: 10px; margin-bottom: 10px; margin-right: 10px;">Enregistrer</button>
+            <button type="submit" class="btn btn-success" style="margin-top: 10px; margin-bottom: 10px; margin-right: 10px;">Enregistrer</button>
         </form>
         <form action="manage_antenne.php" method="post" style="display: inline;">
             <input type="hidden" name="id" value="<?php echo $antenne['ID']; ?>">

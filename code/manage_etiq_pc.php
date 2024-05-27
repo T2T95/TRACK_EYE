@@ -127,8 +127,18 @@ document.getElementById('neverExpires').addEventListener('change', function() {
     <td><?php echo htmlspecialchars($etiq['DATE_DEBUT']); ?></td>
 <td><?php echo $etiq['DATE_FIN'] ? htmlspecialchars($etiq['DATE_FIN']) : '2099-01-01'; ?></td>
 <td>
-<button onclick="document.getElementById('editForm<?php echo $etiq['ID']; ?>').style.display='block'" class="btn btn-primary" style="margin-right: 10px;">Modifier</button>
-<form id="editForm<?php echo $etiq['ID']; ?>" style="display: none;" action="manage_etiq_pc.php" method="post">
+<button onclick="toggleForm('editForm<?php echo $etiq['ID']; ?>')" class="btn btn-primary" style="margin-right: 10px;">Modifier</button>
+
+<script>
+function toggleForm(formId) {
+    var form = document.getElementById(formId);
+    if (form.style.display === "none" || form.style.display === "") {
+        form.style.display = "block";
+    } else {
+        form.style.display = "none";
+    }
+}
+</script><form id="editForm<?php echo $etiq['ID']; ?>" style="display: none;" action="manage_etiq_pc.php" method="post">
     <input type="hidden" name="id" value="<?php echo $etiq['ID']; ?>">
     <input type="hidden" name="action" value="edit">
     <label for="num_etiq">Numéro RFID:</label><br>
@@ -150,7 +160,7 @@ document.getElementById('neverExpires').addEventListener('change', function() {
         <input type="checkbox" class="form-check-input" id="edit_neverExpires<?php echo $etiq['ID']; ?>" onchange="handleEditNeverExpiresChange(<?php echo $etiq['ID']; ?>)">
         <label class="form-check-label" for="edit_neverExpires<?php echo $etiq['ID']; ?>">N'expire jamais</label>
     </div>
-    <button type="submit" class="btn btn-primary">Enregistrer</button>
+    <button type="submit" class="btn btn-success" style="margin-top: 10px; margin-bottom: 10px; margin-right: 10px;">Enregistrer</button>
 </form>
 
 <script>
