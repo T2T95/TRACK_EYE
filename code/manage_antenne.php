@@ -62,7 +62,7 @@ $antennes = $db->query("SELECT * FROM ANTENNE");
         <tr>
     <th>ID</th>
     <th>Numéro d'Antenne</th>
-    <th>Emplacement</th>
+<th>Emplacement</th>
     <th>Actions</th>
 </tr>
 </thead>
@@ -73,21 +73,21 @@ $antennes = $db->query("SELECT * FROM ANTENNE");
         <td><?php echo htmlspecialchars($antenne['ID_ANTENNE']); ?></td>
         <td><?php echo htmlspecialchars($antenne['EMPLACEMENT']); ?></td>
         <td>
-            <button onclick="document.getElementById('editForm<?php echo $antenne['ID']; ?>').style.display='block'" class="btn btn-primary" style="margin-right: 10px;">Modifier</button>
-            <form id="editForm<?php echo $antenne['ID']; ?>" style="display: none;" action="manage_antenne.php" method="post">
-                <input type="hidden" name="id" value="<?php echo $antenne['ID']; ?>">
-                <input type="hidden" name="action" value="edit">
-                <label for="id_antenne">Numéro d'Antenne:</label><br>
-                <input type="text" id="id_antenne" name="id_antenne" value="<?php echo $antenne['ID_ANTENNE']; ?>"><br>
-                <label for="emplacement">Emplacement:</label><br>
-                <input type="text" id="emplacement" name="emplacement" value="<?php echo $antenne['EMPLACEMENT']; ?>"><br>
-                <button type="submit" class="btn btn-primary">Enregistrer</button>
-            </form>
-            <form action="manage_antenne.php" method="post" style="display: inline;">
-                <input type="hidden" name="id" value="<?php echo $antenne['ID']; ?>">
-                <input type="hidden" name="action" value="delete">
-                <button type="submit" class="btn btn-danger">Supprimer</button>
-            </form>
+        <button onclick="var form = document.getElementById('editForm<?php echo $antenne['ID']; ?>'); form.style.display = form.style.display === 'block' ? 'none' : 'block';" class="btn btn-primary" style="margin-right: 10px;">Modifier</button>
+        <form id="editForm<?php echo $antenne['ID']; ?>" style="display: none;" action="manage_antenne.php" method="post">
+            <input type="hidden" name="id" value="<?php echo $antenne['ID']; ?>">
+            <input type="hidden" name="action" value="edit">
+            <label for="edit_id_antenne<?php echo $antenne['ID']; ?>">Numéro d'Antenne:</label><br>
+            <input type="text" id="edit_id_antenne<?php echo $antenne['ID']; ?>" name="id_antenne" value="<?php echo $antenne['ID_ANTENNE']; ?>"><br>
+            <label for="edit_emplacement<?php echo $antenne['ID']; ?>">Emplacement:</label><br>
+            <input type="text" id="edit_emplacement<?php echo $antenne['ID']; ?>" name="emplacement" value="<?php echo $antenne['EMPLACEMENT']; ?>"><br>
+            <button type="submit" class="btn btn-primary" style="margin-top: 10px; margin-bottom: 10px; margin-right: 10px;">Enregistrer</button>
+        </form>
+        <form action="manage_antenne.php" method="post" style="display: inline;">
+            <input type="hidden" name="id" value="<?php echo $antenne['ID']; ?>">
+            <input type="hidden" name="action" value="delete">
+            <button type="submit" class="btn btn-danger" >Supprimer</button>
+        </form>
         </td>
     </tr>
     <?php } ?>

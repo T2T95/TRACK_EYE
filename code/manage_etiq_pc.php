@@ -5,14 +5,15 @@ function handlePostRequest() {
     global $db;
     if (isset($_POST['action'])) {
         if ($_POST['action'] == 'add') {
+            $date_fin = isset($_POST['date_fin']) ? $_POST['date_fin'] : '2099-01-01';
             $stmt = $db->prepare("INSERT INTO ETIQ_PC (NUM_ETIQ, NUM_PC, DATE_DEBUT, DATE_FIN) VALUES (?, ?, ?, ?)");
-            $stmt->execute([$_POST['num_etiq'], $_POST['num_pc'], $_POST['date_debut'], $_POST['date_fin']]);
+            $stmt->execute([$_POST['num_etiq'], $_POST['num_pc'], $_POST['date_debut'], $date_fin]);
         } elseif ($_POST['action'] == 'edit') {
             $stmt = $db->prepare("UPDATE ETIQ_PC SET NUM_ETIQ = ?, NUM_PC = ?, DATE_DEBUT = ?, DATE_FIN = ? WHERE ID = ?");
             $num_etiq = isset($_POST['num_etiq']) ? $_POST['num_etiq'] : '';
             $num_pc = isset($_POST['num_pc']) ? $_POST['num_pc'] : '';
             $date_debut = isset($_POST['date_debut']) ? $_POST['date_debut'] : '';
-            $date_fin = isset($_POST['date_fin']) ? $_POST['date_fin'] : '';
+            $date_fin = isset($_POST['date_fin']) ? $_POST['date_fin'] : '2099-01-01';
             $id = isset($_POST['id']) ? $_POST['id'] : '';
             
             $stmt->execute([$num_etiq, $num_pc, $date_debut, $date_fin, $id]);
@@ -26,8 +27,8 @@ function handlePostRequest() {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     handlePostRequest();
 }
-if ($_POST['action'] == 'add') {
-    $date_fin = isset($_POST['neverExpires']) ? 'Undefined' : $_POST['date_fin'];
+if (isset($_POST['action']) && $_POST['action'] == 'add') {
+    $date_fin = isset($_POST['neverExpires']) ? '2099-01-01' : $_POST['date_fin'];
     
     // Vérifiez si une ligne avec le même num_etiq et num_pc existe déjà
     $stmt = $db->prepare("SELECT * FROM ETIQ_PC WHERE NUM_ETIQ = ? AND NUM_PC = ?");
@@ -81,8 +82,7 @@ $etiqs = $db->query("SELECT * FROM ETIQ_PC");
             <label for="date_debut" class="form-label">Date de début</label>
             <input type="date" id="date_debut" name="date_debut" required class="form-control">
         </div>
-
-<div class="mb-3">
+        <div class="mb-3">
     <label for="date_fin" class="form-label">Date de fin</label>
     <input type="date" id="date_fin" name="date_fin" required class="form-control">
 </div>
@@ -100,6 +100,8 @@ document.getElementById('neverExpires').addEventListener('change', function() {
     dateFinInput.required = !this.checked;
     dateFinInput.disabled = this.checked;
     if (this.checked) {
+        dateFinInput.value = '2099-01-01';
+    } else {
         dateFinInput.value = '';
     }
 });
@@ -123,7 +125,7 @@ document.getElementById('neverExpires').addEventListener('change', function() {
     <td><?php echo htmlspecialchars($etiq['NUM_ETIQ']); ?></td>
     <td><?php echo htmlspecialchars($etiq['NUM_PC']); ?></td>
     <td><?php echo htmlspecialchars($etiq['DATE_DEBUT']); ?></td>
-<td><?php echo $etiq['DATE_FIN'] ? htmlspecialchars($etiq['DATE_FIN']) : 'Undefined'; ?></td>
+<td><?php echo $etiq['DATE_FIN'] ? htmlspecialchars($etiq['DATE_FIN']) : '2099-01-01'; ?></td>
 <td>
 <button onclick="document.getElementById('editForm<?php echo $etiq['ID']; ?>').style.display='block'" class="btn btn-primary" style="margin-right: 10px;">Modifier</button>
 <form id="editForm<?php echo $etiq['ID']; ?>" style="display: none;" action="manage_etiq_pc.php" method="post">
@@ -153,15 +155,12 @@ document.getElementById('neverExpires').addEventListener('change', function() {
 
 <script>
 function handleEditNeverExpiresChange(id) {
-    var neverExpiresCheckbox = document.getElementById('edit_neverExpires' + id);
     var dateFinInput = document.getElementById('date_fin' + id);
-
+    var neverExpiresCheckbox = document.getElementById('edit_neverExpires' + id);
     if (neverExpiresCheckbox.checked) {
-        dateFinInput.value = "";
-        dateFinInput.disabled = true;
+        dateFinInput.value = '2099-01-01';
     } else {
-        dateFinInput.value = "";
-        dateFinInput.disabled = false;
+        dateFinInput.value = '';
     }
 }
 </script>

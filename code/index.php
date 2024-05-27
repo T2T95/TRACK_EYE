@@ -15,6 +15,7 @@
         <img src="image2.jpg" alt="Track Eye System Banner" class="img-fluid">
         <h1>Système de Suivi RFID</h1>
             <div class="mb-3 text-end">
+            <a href="register.php" class="btn btn-secondary">Compte Administrateur</a>
                 <a href="manage_etiq_pc.php" class="btn btn-secondary">Gérer le matériel</a>
                 <a href="manage_antenne.php" class="btn btn-secondary">Gérer les antennes</a>
             </div>
