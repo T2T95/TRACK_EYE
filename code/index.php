@@ -69,35 +69,33 @@
 </thead>
 <tbody>
     <?php
-    $conditions = [];
-    $params = [];
-    if (!empty($_GET['date'])) {
-        $conditions[] = "DATE(t.DATE_TIME) = :date";
-        $params[':date'] = $_GET['date'];
-    }
-    if (!empty($_GET['material'])) {
-        $conditions[] = "p.NUM_ETIQ = :material";
-        $params[':material'] = $_GET['material'];
-    }
-    if (!empty($_GET['antenne'])) {
-        $conditions[] = "a.ID_ANTENNE = :antenne";
-        $params[':antenne'] = $_GET['antenne'];
-    }
-    if (!empty($conditions)) {
-        $query = "SELECT t.DATE_TIME, p.NUM_ETIQ, p.NUM_PC, a.EMPLACEMENT FROM TRACK_ETIQ t
-                  LEFT JOIN ETIQ_PC p ON t.NUM_ETIQ = p.NUM_ETIQ
-                  LEFT JOIN ANTENNE a ON t.ID_ANTENNE = a.ID_ANTENNE "
-                  . " WHERE " . implode(' AND ', $conditions);
-        $stmt = $db->prepare($query);
-        foreach ($params as $key => $value) {
-            $stmt->bindValue($key, $value);
-        }
-        $stmt->execute();
-        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($results as $row) {
-            echo "<tr><td>" . htmlspecialchars($row['DATE_TIME']) . "</td><td>" . htmlspecialchars($row['NUM_ETIQ']) . "</td><td>" . htmlspecialchars($row['NUM_PC']) . "</td><td>" . htmlspecialchars($row['EMPLACEMENT']) . "</td></tr>";
-        }
-    }
+$conditions = [];
+$params = [];
+if (!empty($_GET['material'])) {
+    $conditions[] = "p.NUM_ETIQ = :material";
+    $params[':material'] = $_GET['material'];
+}
+if (!empty($_GET['antenne'])) {
+    $conditions[] = "a.ID_ANTENNE = :antenne";
+    $params[':antenne'] = $_GET['antenne'];
+}
+
+$query = "SELECT t.DATE_TIME, p.NUM_ETIQ, p.NUM_PC, a.EMPLACEMENT FROM TRACK_ETIQ t JOIN ETIQ_PC p ON t.NUM_ETIQ = p.NUM_ETIQ JOIN ANTENNE a ON t.ID_ANTENNE = a.ID_ANTENNE";
+if ($conditions) {
+    $query .= " WHERE " . implode(" AND ", $conditions);
+}
+
+$stmt = $db->prepare($query);
+$stmt->execute($params);
+
+while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    echo "<tr>";
+    echo "<td>" . $row['DATE_TIME'] . "</td>";
+    echo "<td>" . $row['NUM_ETIQ'] . "</td>";
+    echo "<td>" . $row['NUM_PC'] . "</td>";
+    echo "<td>" . $row['EMPLACEMENT'] . "</td>";
+    echo "</tr>";
+}
     ?>
 </tbody>
     </table>
